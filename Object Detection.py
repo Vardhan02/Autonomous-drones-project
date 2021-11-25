@@ -181,7 +181,7 @@ while True:
     cv2.imshow("Horizontal Stacking", stack)
     if cv2.waitkey(1)&0xFF == ord('q'):
         break
-#cap.release()
+cap.release()
 cv2.destroyAllWindows()
 
 
