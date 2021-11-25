@@ -1,14 +1,30 @@
-from djitellopy import tello
 import cv2
 
-me = tello.Tello()
-me.connect()
-print(me.get_battery())
+cam = cv2.VideoCapture(0)
 
-me.streamon()
+cv2.namedWindow("test")
+
+img_counter = 0
 
 while True:
-    img = me.get_frame_read().frame
-    img = cv2.resize(img, (368, 248))
-    cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    ret, frame = cam.read()
+    if not ret:
+        print("failed to grab frame")
+        break
+    cv2.imshow("test", frame)
+
+    k = cv2.waitKey(1)
+    if k%256 == 27:
+        # ESC pressed
+        print("Escape hit, closing...")
+        break
+    elif k%256 == 32:
+        # SPACE pressed
+        img_name = "opencv_frame_{}.png".format(img_counter)
+        cv2.imwrite(img_name, frame)
+        print("{} written!".format(img_name))
+        img_counter += 1
+
+cam.release()
+
+cv2.destroyAllWindows()
