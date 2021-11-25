@@ -2,6 +2,8 @@ from djitellopy import Tello
 import cv2
 import numpy as np
 #####Parameters################
+from haarcascade import cap
+
 width=640 #width of the image
 height=480 #height of the image
 deadzone=100
@@ -130,7 +132,7 @@ def display(img):
     cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) - deadZone), (255, 255, 0), 3)
     cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) + deadZone), (255, 255, 0), 3)
 while True:
-    ,img=cap.read()
+    img=cap.read()
     imgContour=img.copy()
     imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGRHSV)
     h_min=cv2.getTrackbarPos("HUE Min","HSV")
@@ -170,7 +172,7 @@ while True:
     elif dir==4:
         me.up_dow_velocity=-60
     else:
-        me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0,me.yaw_velocity=0
+        me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0;me.yaw_velocity=0
     #send velocity values to tello
     if me.send_rc_control:
         me.send_rc_control(me.left_right_velocity,me.for_back_velocity,me.yaw_velocity,me.up_dow_velocity)
