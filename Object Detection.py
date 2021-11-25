@@ -1,15 +1,34 @@
+from djitellopy import Tello
 import cv2
 import numpy as np
-
-# Parameters
-frameWidth=640
-franeHeight=480
-cap=cv2.VideoCapture(1)
-cap.set(3,frameWidth)
-cap.set(4,franeHeight)
+#####Parameters################
+width=640 #width of the image
+height=480 #height of the image
+deadzone=100
+###############################
+startCounter=0
+#connect to tello
+me=Tello()
+me.connect()
+me.for_back_velocity=0
+me.up_dow_velocity=0
+me.yaw_velocity=0
+me.speed=0
+print(me.get_battery())
+me.streamoff()
+me.streamon()
+########################
+frameWidth=width
+franeHeight=height
+#cap=cv2.VideoCapture(1)
+#cap.set(3,frameWidth)
+#cap.set(4,franeHeight)
+#cap.set(10,200
 
 deadZone=100
 global imgContour
+global dir;
+
 
 def empty(a):
     pass
@@ -79,11 +98,94 @@ def getContours(img,imgContour):
             cv2.puttext(imgContour, "Area: ", +str(len(area)), (x + w + 20, y + 45), cv2.FONT_HERSHEY_COMPLEX, 0.7,
                         (0, 255, 0), 2)
             cv2.puttext(imgContour, " ", +str(int(x))+"",+str(int(y)),(x-20,y-45),cv2.FONT_HERSHEY_COMPLEX, 0.7,
-                        (0, 255, 0), 2
+                        (0, 255, 0), 2)
             cx=int(x+(w/2))
             cy=int(y+(h/2))
 
-            if()
+            if(cx<int(frameWidth/2)-deadZone):
+                cv2.putText(imgContour,"Go Left",(20,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),3)
+                cv2.rectangle(imgContour,(0,int(franeHeight/2-deadZone)),(int(frameWidth/2-deadZone)),(int(franeHeight/2)+deadZone),(0,0,255),cv2.FILLED)
+                dir=1
+            elif(cx>int(frameWidth/2)+deadZone):
+                cv2.putText(imgContour, "Go Left", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)
+                cv2.rectangle(imgContour, (0, int(frameWidth/2-deadZone),0),int(franeHeight/2-deadZone)),(frameWidth,int(franeHeight/2+deadZone),(0,0,255),cv2.FILLED)
+                dir=2
+            elif(cy<int(franeHeight/2)-deadZone):
+                cv2.putText(imgContour, "Go Left", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)
+                cv2.rectangle(imgContour, (0, int(franeHeight / 2 - deadZone)), (int(frameWidth / 2 - deadZone)),(int(franeHeight / 2) + deadZone), (0, 0, 255), cv2.FILLED)
+                dir=3
+            elif(cy<int(franeHeight/2)+deadZone):
+                cv2.putText(imgContour, "Go Left", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)
+                cv2.rectangle(imgContour, (0, int(frameWidth/2-deadZone),0),int(franeHeight/2-deadZone)),(frameWidth,int(franeHeight/2+deadZone),(0,0,255),cv2.FILLED)
+                dir=4
+            else:
+                dir=0
+            cv2.line(imgContour,(int(frameWidth/2),int(franeHeight/2)),(cx,cy),(0,0,255),3)
+
+
+def display(img):
+    cv2.line(img, (int(frameWidth / 2) - deadZone, 0), (int(frameWidth / 2) - deadZone, franeHeight), (255, 255, 0), 3)
+    cv2.line(img, (int(frameWidth / 2) - deadZone, 0), (int(frameWidth / 2) + deadZone, franeHeight), (255, 255, 0), 3)
+    cv2.circle(img, (int(frameWidth / 2), int(franeHeight / 2)), 5, (0, 0, 255), 5)
+    cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) - deadZone), (255, 255, 0), 3)
+    cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) + deadZone), (255, 255, 0), 3)
+while True:
+    ,img=cap.read()
+    imgContour=img.copy()
+    imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGRHSV)
+    h_min=cv2.getTrackbarPos("HUE Min","HSV")
+    h_max = cv2.getTrackbarPos("HUE Max", "HSV")
+    s_min = cv2.getTrackbarPos("SAT Min", "HSV")
+    s_max = cv2.getTrackbarPos("SAT Max", "HSV")
+    v_min=cv2.getTrackbarPos("VALUE Min","HSV")
+    v_max = cv2.getTrackbarPos("VALUE Max", "HSV")
+    print (h_min)
+
+    lower=np.array([h_min,s_min,v_min])
+    upper=np.array([h_max,s_max,v_max])
+    mask=cv2.inRange(imgHsv,lower,upper)
+    result=cv2.bitwise_and(img,img,mask=mask)
+    mask=cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
+
+    imgblur=cv2.GaussianBlur(result,(7,7),1)
+    imgGray=cv2.cvtColor(imgblur,cv2.COLOR_GRAY2BGR)
+    threshold1=cv2.getTrackbarPos("Threshold1","Parameters")
+    threshold2 = cv2.getTrackbarPos("Threshold2", "Parameters")
+    imgCanny=cv2.Canny(imgGray,threshold1,threshold2)
+    kernel=np.ones((5,5))
+    imgDil=cv2.dilate(imgCanny,kernel,iterations=1)
+    getContours(imgDil,imgContour)
+    display(imgContour)
+
+    ####### Flight
+    if startCounter==0:
+        me.takeoff()
+        startCounter=1
+    if dir==1:
+        me.yaw_velocity=-60
+    elif dir==2:
+        me.yaw_velocity=60
+    elif dir==3:
+        me.up_dow_velocity=60
+    elif dir==4:
+        me.up_dow_velocity=-60
+    else:
+        me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0,me.yaw_velocity=0
+    #send velocity values to tello
+    if me.send_rc_control:
+        me.send_rc_control(me.left_right_velocity,me.for_back_velocity,me.yaw_velocity,me.up_dow_velocity)
+    print(dir)
+    stack=stackImages(0.7,([img,result],[imgDil,imgContour]))
+
+    cv2.imshow("Horizontal Stacking", stack)
+    if cv2.waitkey(1)&0xFF == ord('q'):
+        break
+#cap.release()
+cv2.destroyAllWindows()
+
+
+
+
 
 
 
