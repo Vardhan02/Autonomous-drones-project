@@ -171,7 +171,7 @@ while True:
     elif dir==4:
         me.up_dow_velocity=-60
     else:
-        me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0,me.yaw_velocity=0
+        me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0;me.yaw_velocity=0
     #send velocity values to tello
     if me.send_rc_control:
         me.send_rc_control(me.left_right_velocity,me.for_back_velocity,me.yaw_velocity,me.up_dow_velocity)
