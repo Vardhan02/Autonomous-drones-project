@@ -22,10 +22,10 @@ me.streamon()
 ########################
 frameWidth=width
 franeHeight=height
-#cap=cv2.VideoCapture(1)
-#cap.set(3,frameWidth)
-#cap.set(4,franeHeight)
-#cap.set(10,200
+cam=cv2.VideoCapture(1)
+cap.set(3,frameWidth)
+cap.set(4,franeHeight)
+cap.set(10,200)
 
 deadZone=100
 global imgContour
@@ -182,7 +182,7 @@ while True:
     cv2.imshow("Horizontal Stacking", stack)
     if cv2.waitkey(1)&0xFF == ord('q'):
         break
-#cap.release()
+cam.release()
 cv2.destroyAllWindows()
 
 
