@@ -134,7 +134,7 @@ def display(img):
 while True:
     img=cam.read()
     imgContour=img.copy()
-    imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGRHSV)
+    imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
     h_min=cv2.getTrackbarPos("HUE Min","HSV")
     h_max = cv2.getTrackbarPos("HUE Max", "HSV")
     s_min = cv2.getTrackbarPos("SAT Min", "HSV")
