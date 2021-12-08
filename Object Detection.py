@@ -2,7 +2,7 @@ from djitellopy import Tello
 import cv2
 import numpy as np
 #####Parameters################
-
+from haarcascade import cap
 
 width=640 #width of the image
 height=480 #height of the image
@@ -23,9 +23,9 @@ me.streamon()
 frameWidth=width
 franeHeight=height
 cam=cv2.VideoCapture(1)
-cam.set(3,frameWidth)
-cam.set(4,franeHeight)
-cam.set(10,200)
+cap.set(3,frameWidth)
+cap.set(4,franeHeight)
+cap.set(10,200)
 
 deadZone=100
 global imgContour
@@ -132,7 +132,7 @@ def display(img):
     cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) - deadZone), (255, 255, 0), 3)
     cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) + deadZone), (255, 255, 0), 3)
 while True:
-    img=cam.read()
+    img=cap.read()
     imgContour=img.copy()
     imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGRHSV)
     h_min=cv2.getTrackbarPos("HUE Min","HSV")
@@ -184,3 +184,14 @@ while True:
         break
 cam.release()
 cv2.destroyAllWindows()
+
+
+
+
+
+
+
+
+
+
+
