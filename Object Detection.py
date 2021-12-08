@@ -20,6 +20,7 @@ startCounter=0
 #me.streamoff()
 #me.streamon()
 ########################
+g
 frameWidth=width
 franeHeight=height
 cam=cv2.VideoCapture(1)
