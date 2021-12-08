@@ -1,16 +1,15 @@
 import time
-
 import cv2
 import numpy as np
-from djitellopy import tello
+#from djitellopy import tello
 
-me=tello.Tello()
-me.connect()
-print(me.get_battery())
+#me=tello.Tello()
+#me.connect()
+#print(me.get_battery())
 
-me.streamon()
-me.takeoff()
-me.send_rc_control(0,0,25,0)
+#me.streamon()
+#me.takeoff()
+#me.send_rc_control(0,0,25,0)
 time.sleep(2.2)
 
 w,h=360,240
@@ -58,19 +57,19 @@ def trackFace(info,w,pid,pError):
         speed=0
         error=0
     #print(speed,fb)
-    me.send_rc_control(0,fb,0,speed)
+    #me.send_rc_control(0,fb,0,speed)
     return error
 
-#cap=cv2.VideoCapture(0)
+cap=cv2.VideoCapture(1)
 while True:
-    #,img=cap.read()
-    img=me.get_frame_read().frame
+    img=cap.read()
+    #img=cap.get_frame_read().frame
     img=cv2.resize(img,(w,h))
     img,info = findFace(img)
     pError=trackFace( info, w, pid, pError)
     #print("Center",info[0],"Area",info[1])
     cv2.imshow("Output",img)
     if cv2.waitKey(1) &0xFF==ord('q'):
-        me.land()
+        #me.land()
         break
 

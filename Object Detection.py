@@ -1,8 +1,8 @@
-from djitellopy import Tello
+#from djitellopy import Tello
 import cv2
 import numpy as np
 #####Parameters################
-from haarcascade import cap
+
 
 width=640 #width of the image
 height=480 #height of the image
@@ -10,26 +10,26 @@ deadzone=100
 ###############################
 startCounter=0
 #connect to tello
-me=Tello()
-me.connect()
-me.for_back_velocity=0
-me.up_dow_velocity=0
-me.yaw_velocity=0
-me.speed=0
-print(me.get_battery())
-me.streamoff()
-me.streamon()
+#me=Tello()
+#me.connect()
+#me.for_back_velocity=0
+#me.up_dow_velocity=0
+#me.yaw_velocity=0
+#me.speed=0
+#print(me.get_battery())
+#me.streamoff()
+#me.streamon()
 ########################
 frameWidth=width
 franeHeight=height
 cam=cv2.VideoCapture(1)
-cap.set(3,frameWidth)
-cap.set(4,franeHeight)
-cap.set(10,200)
+cam.set(3,frameWidth)
+cam.set(4,franeHeight)
+cam.set(10,200)
 
 deadZone=100
 global imgContour
-global dir;
+global dir
 
 
 def empty(a):
@@ -132,9 +132,9 @@ def display(img):
     cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) - deadZone), (255, 255, 0), 3)
     cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) + deadZone), (255, 255, 0), 3)
 while True:
-    img=cap.read()
+    img=cam.read()
     imgContour=img.copy()
-    imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGRHSV)
+    imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
     h_min=cv2.getTrackbarPos("HUE Min","HSV")
     h_max = cv2.getTrackbarPos("HUE Max", "HSV")
     s_min = cv2.getTrackbarPos("SAT Min", "HSV")
@@ -160,22 +160,22 @@ while True:
     display(imgContour)
 
     ####### Flight
-    if startCounter==0:
-        me.takeoff()
-        startCounter=1
-    if dir==1:
-        me.yaw_velocity=-60
-    elif dir==2:
-        me.yaw_velocity=60
-    elif dir==3:
-        me.up_dow_velocity=60
-    elif dir==4:
-        me.up_dow_velocity=-60
-    else:
-        me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0;me.yaw_velocity=0
+    #if startCounter==0:
+        #me.takeoff()
+        #startCounter=1
+    #if dir==1:
+        #me.yaw_velocity=-60
+    #elif dir==2:
+        #me.yaw_velocity=60
+    #elif dir==3:
+        #me.up_dow_velocity=60
+    #elif dir==4:
+        #me.up_dow_velocity=-60
+    #else:
+        #me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0;me.yaw_velocity=0
     #send velocity values to tello
-    if me.send_rc_control:
-        me.send_rc_control(me.left_right_velocity,me.for_back_velocity,me.yaw_velocity,me.up_dow_velocity)
+    #if me.send_rc_control:
+        #me.send_rc_control(me.left_right_velocity,me.for_back_velocity,me.yaw_velocity,me.up_dow_velocity)
     print(dir)
     stack=stackImages(0.7,([img,result],[imgDil,imgContour]))
 
@@ -184,14 +184,3 @@ while True:
         break
 cam.release()
 cv2.destroyAllWindows()
-
-
-
-
-
-
-
-
-
-
-
