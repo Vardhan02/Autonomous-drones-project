@@ -62,8 +62,8 @@ def trackFace(info,w,pid,pError):
 
 cap=cv2.VideoCapture(1)
 while True:
-    img=cap.read()
-    #img=cap.get_frame_read().frame
+    success,img=cap.read()
+    img=cap.get_frame_read().frame
     img=cv2.resize(img,(w,h))
     img,info = findFace(img)
     pError=trackFace( info, w, pid, pError)
