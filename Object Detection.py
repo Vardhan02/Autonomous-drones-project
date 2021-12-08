@@ -20,6 +20,7 @@ print(me.get_battery())
 me.streamoff()
 me.streamon()
 ########################
+g
 frameWidth=width
 franeHeight=height
 cam=cv2.VideoCapture(1)
