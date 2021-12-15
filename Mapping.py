@@ -1,5 +1,6 @@
 from djitellopy import tello
 import KeyPressModule as kp
+import takeoff_landing as tkl
 from time import sleep
 import numpy as np
 import cv2
@@ -16,9 +17,9 @@ aInterval=aSpeed*interval
 #################################################
 
 kp.init()
-me=tello.Tello()
-me.connect()
-print(me.get_battery())
+#me=tello.Tello()
+#me.connect()
+#print(me.get_battery())
 x,y=500,500
 a=0
 yaw=0
@@ -64,10 +65,8 @@ def getKeyboardInput():
         yv=aSpeed
         yaw += aInterval
 
-    if kp.getKey("q"):
-        me.land();sleep(3)
-    if kp.getKey("e"):
-        me.takeoff()
+    elif kp.getKey("q"):
+        tkl.arm_and_takeoff()
 
         sleep(interval)
         a+=yaw
@@ -83,7 +82,7 @@ def drawPoints(img,points):
 
 while True:
     vals=getKeyboardInput()
-    me.send_rc_control(vals[0],vals[1],vals[2],vals[3])
+    #me.send_rc_control(vals[0],vals[1],vals[2],vals[3])
 
     img=np.zeros((1000,1000,3), np.uint8)
     if (points[-1][0]!=vals[4] or points[-1][1]!= vals[5]):
