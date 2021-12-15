@@ -1,5 +1,5 @@
 import cv2
-from djitellopy import tello
+#from djitellopy import tello
 import cvzone
 thres=0.6 # if the cam is 60% sure that it is a object it displays it
 nmsThres=0.2
