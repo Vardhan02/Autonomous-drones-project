@@ -1,4 +1,6 @@
 import cv2
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 cam = cv2.VideoCapture(0)
 
@@ -24,7 +26,9 @@ while True:
         cv2.imwrite(img_name, frame)
         print("{} written!".format(img_name))
         img_counter += 1
-
+        img = mpimg.imread("opencv_frame_0.png")
+        imgplot = plt.imshow(img)
+        plt.show()
 cam.release()
 
 cv2.destroyAllWindows()
