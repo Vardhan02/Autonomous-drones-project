@@ -1,16 +1,15 @@
 import cv2
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
-cam = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0)
 
 cv2.namedWindow("test")
 
 img_counter = 0
 
-#def denoise (img)
-
 while True:
-    ret, frame = cam.read()
+    ret, frame = cap.read()
     if not ret:
         print("failed to grab frame")
         break
@@ -27,23 +26,23 @@ while True:
         cv2.imwrite(img_name, frame)
         print("{} written!".format(img_name))
         img_counter += 1
-        key = int(input("Enter your choice:\n1. Plot the original image and the denoised image\n2. Exit\n"))
-        if(key == 1):
-            # Reading image from folder where it is stored
-            img = cv2.imread('opencv_frame_0.png')
-            rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = mpimg.imread("opencv_frame_0.png")
+        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        imgplot = plt.imshow(imgRGB)
+        plt.show()
+        # image path
+        path = r'opencv_frame_0.png'
 
-            # denoising of image saving it into dst image
-            dst = cv2.fastNlMeansDenoisingColored(rgb_img, None, 10, 10, 7, 21)
+        # using imread()
+        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        cv2.imshow('opencv_frame_{}.png', img)
 
-            # Plotting of source and destination ion image
-            plt.subplot(121), plt.imshow(rgb_img)
-            plt.subplot(122), plt.imshow(dst)
+        dst = cv2.calcHist(img, [0], None, [256], [0, 256])
 
-            plt.show()
-        else:
-            break
+        plt.hist(img.ravel(), 256, [0, 256])
+        plt.title('Histogram for gray scale image')
+        plt.show()
 
-cam.release()
+cap.release()
 
 cv2.destroyAllWindows()
