@@ -3,6 +3,9 @@
 import cv2
 import mediapipe as mp
 import time
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+global img_counter,k
 
 # Creating a class for face detection
 class FaceDetector():
@@ -17,7 +20,7 @@ class FaceDetector():
 
     def findFaces(self, img, draw=True):
 
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # the output of imgRgb is stored in results
+        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # the output of img Rgb is stored in results
         self.results = self.faceDetection.process(imgRGB)
         bboxs = []
         if self.results.detections:
@@ -55,6 +58,8 @@ class FaceDetector():
         return img
 
 
+
+
 def main():
     cap = cv2.VideoCapture(0)
     pTime = 0
@@ -63,12 +68,12 @@ def main():
         success, img = cap.read()
         img, bboxs = detector.findFaces(img)
         print(bboxs)
-
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
         cv2.putText(img, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 2)
         cv2.imshow("Image", img)
+
         cv2.waitKey(1)
 
 
