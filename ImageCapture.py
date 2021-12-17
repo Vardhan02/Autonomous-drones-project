@@ -8,6 +8,8 @@ cv2.namedWindow("test")
 
 img_counter = 0
 
+
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -42,6 +44,22 @@ while True:
         plt.hist(img.ravel(), 256, [0, 256])
         plt.title('Histogram for gray scale image')
         plt.show()
+        key = int(input("Enter your choice:\n1. Plot the original image and the denoised image\n2. Exit\n"))
+        if (key == 1):
+            # Reading image from folder where it is stored
+            img = cv2.imread('opencv_frame_0.png')
+            rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+            # denoising of image saving it into dst image
+            dst = cv2.fastNlMeansDenoisingColored(rgb_img, None, 10, 10, 7, 21)
+
+            # Plotting of source and destination ion image
+            plt.subplot(121), plt.imshow(rgb_img)
+            plt.subplot(122), plt.imshow(dst)
+
+            plt.show()
+        else:
+            break
 
 cap.release()
 
