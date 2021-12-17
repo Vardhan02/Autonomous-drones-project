@@ -1,12 +1,13 @@
 import cv2
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+from matplotlib import pyplot as plt
 
 cam = cv2.VideoCapture(0)
 
 cv2.namedWindow("test")
 
 img_counter = 0
+
+#def denoise (img)
 
 while True:
     ret, frame = cam.read()
@@ -26,9 +27,23 @@ while True:
         cv2.imwrite(img_name, frame)
         print("{} written!".format(img_name))
         img_counter += 1
-        img = mpimg.imread("opencv_frame_0.png")
-        imgplot = plt.imshow(img)
-        plt.show()
+        key = int(input("Enter your choice:\n1. Plot the original image and the denoised image\n2. Exit\n"))
+        if(key == 1):
+            # Reading image from folder where it is stored
+            img = cv2.imread('opencv_frame_0.png')
+            rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+            # denoising of image saving it into dst image
+            dst = cv2.fastNlMeansDenoisingColored(rgb_img, None, 10, 10, 7, 21)
+
+            # Plotting of source and destination ion image
+            plt.subplot(121), plt.imshow(rgb_img)
+            plt.subplot(122), plt.imshow(dst)
+
+            plt.show()
+        else:
+            break
+
 cam.release()
 
 cv2.destroyAllWindows()
