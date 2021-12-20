@@ -33,8 +33,6 @@ def PSNR(original, compressed):
     psnr = 20 * log10(max_pixel / sqrt(mse))
     return psnr
 
-
-
 while True:
     ret, frame = cap.read()
     if not ret:
