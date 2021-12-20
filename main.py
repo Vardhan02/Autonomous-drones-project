@@ -2,9 +2,9 @@ import env,sensors
 import pygame
 
 
-environment =env.buildEnviroment((600,1200))
+environment =env.bulidEnvironment((600,1200))
 environment.originalMap=environment.map.copy()
-laser=sensors.LaserSensor(200,environment.originalMap,uncertainty=(0.5,0.01))
+laser=sensors.LaserSensor(200,environment.originalMap,uncertainity=(0.5,0.01))
 environment.map.fill((0,0,0))
 environment.informap=environment.map.copy()
 
@@ -16,7 +16,7 @@ while running:
             running=False
         if pygame.mouse.get_focused():
               sensorsON=True
-        elif not pygame.mouse.getfocused():
+        elif not pygame.mouse.get_focused():
             sensorsON=False
     if sensorsON:
         position=pygame.mouse.get_pos()
@@ -26,5 +26,3 @@ while running:
         environment.show_sensorData()
     environment.map.blit(environment.informap,(0,0))
     pygame.display.update()
-
-

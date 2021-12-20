@@ -28,7 +28,7 @@ class LaserSensor:
         data=[]
         x1,y1=self.position[0],self.position[1]
         for angle in np.linspace(0,2*math.pi,60,False):
-            x2.y2=(x1+self.Range*math.cos(angle),y1-self.Range*math.sin(angle))
+            x2,y2=(x1+self.Range*math.cos(angle),y1-self.Range*math.sin(angle))
             for i in range(0,100):
                 u=i/100
                 x=int(x2*u+x1*(1-u))
@@ -46,10 +46,3 @@ class LaserSensor:
             return data
         else:
             return False
-
-
-
-
-
-
-
