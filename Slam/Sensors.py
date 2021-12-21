@@ -47,8 +47,3 @@ class LaserSensor:
             return data
         else:
             return False
-
-
-
-
-
