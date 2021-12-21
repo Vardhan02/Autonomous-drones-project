@@ -52,7 +52,6 @@ while True:
         print("{} written!".format(img_name))
         img_counter += 1
         img = mpimg.imread("opencv_frame_0.png")
-        Denoise(img)
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         imgplot = plt.imshow(imgRGB)
         plt.show()
@@ -73,6 +72,8 @@ while True:
         compressed = cv2.imread("opencv_frame_0.png")
         value = PSNR(original, compressed)
         print(f"PSNR value is {value} dB")
+        if value>0:
+            Denoise(img)
 
 
 
