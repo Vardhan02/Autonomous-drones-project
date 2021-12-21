@@ -15,8 +15,8 @@ def Denoise(img):
         img = cv2.imread('opencv_frame_0.png')
         rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        # denoising of image saving it into dst image
-        dst = cv2.fastNlMeansDenoisingColored(rgb_img, None, 10, 10, 7, 21)
+        # denoising of image, and saving it into dst image
+        dst = cv2.fastNlMeansDenoisingColored(rgb_img, None, 5, 10, 7, 21)
 
         # Plotting of source and destination ion image
         plt.subplot(121), plt.imshow(rgb_img)
@@ -72,7 +72,7 @@ while True:
         compressed = cv2.imread("opencv_frame_0.png")
         value = PSNR(original, compressed)
         print(f"PSNR value is {value} dB")
-        if value>0:
+        if value>50:
             Denoise(img)
 
 
