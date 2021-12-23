@@ -5,13 +5,13 @@
     <envs>
       <env name="PYTHONUNBUFFERED" value="1" />
     </envs>
-    <option name="SDK_HOME" value="C:\Users\Sashank\AppData\Local\Microsoft\WindowsApps\python3.9.exe" />
+    <option name="SDK_HOME" value="C:\Users\vardh\AppData\Local\Programs\Python\Python39\python.exe" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <module name="" />
-    <option name="SCRIPT_NAME" value="C:\Users\Sashank\Desktop\amrita\online courses\git hub\ssk30-net\Autonomous-drones-project\Face detection1.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../Users/Sashank/Desktop/amrita/online courses/git hub/ssk30-net/Autonomous-drones-project/Face detection1.py" />
     <option name="PARAMETERS" value="" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="true" />

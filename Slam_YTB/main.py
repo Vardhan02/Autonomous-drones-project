@@ -1,4 +1,4 @@
-from Slam_YTB import env,sensor
+import env,sensor
 import pygame
 environment=env.buildEnvironment((600,1200))
 environment.originalMap = environment.map.copy()
