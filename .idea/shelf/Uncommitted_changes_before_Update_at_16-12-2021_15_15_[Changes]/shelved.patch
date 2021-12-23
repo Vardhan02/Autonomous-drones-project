@@ -1,0 +1,18 @@
+Index: Face detection.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Face detection.py b/Face detection1.py
+rename from Face detection.py
+rename to Face detection1.py
+--- a/Face detection.py	(revision 2260bca57b375c2f5cf77020f244f5119c7665d2)
++++ b/Face detection1.py	(date 1639644284305)
+@@ -4,6 +4,7 @@
+ import mediapipe as mp
+ import time
+ 
++
+ # Creating a class for face detection
+ class FaceDetector():
+     # Intializing all face detection parameters

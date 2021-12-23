@@ -1,0 +1,15 @@
+Index: takeoff and landing.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from dronekit import connect, VehicleMode, LocationGlobalRelative\r\nfrom pymavlink import mavutil\r\nimport time\r\nimport argparse\r\n\r\nparser = argparse.ArgumentParser()\r\nparser.add_argument('--connect', default='127.0.0.1:14550')\r\nargs = parser.parse_args()\r\n\r\n# Connect to the Vehicle\r\nprint 'Connecting to vehicle on: %s' % args.connect\r\nvehicle = connect(args.connect, baud=921600, wait_ready=True)\r\n\r\n\r\n# 921600 is the baudrate that you have set in the mission plannar or qgc\r\n\r\n# Function to arm and then takeoff to a user specified altitude\r\ndef arm_and_takeoff(aTargetAltitude):\r\n    print \"Basic pre-arm checks\"\r\n    # Don't let the user try to arm until autopilot is ready\r\n    while not vehicle.is_armable:\r\n        print \" Waiting for vehicle to initialise...\"\r\n        time.sleep(1)\r\n\r\n    print \"Arming motors\"\r\n    # Copter should arm in GUIDED mode\r\n    vehicle.mode = VehicleMode(\"GUIDED\")\r\n    vehicle.armed = True\r\n\r\n    while not vehicle.armed:\r\n        print \" Waiting for arming...\"\r\n        time.sleep(1)\r\n\r\n    print \"Taking off!\"\r\n    vehicle.simple_takeoff(aTargetAltitude)  # Take off to target altitude\r\n\r\n    # Check that vehicle has reached takeoff altitude\r\n    while True:\r\n        print \" Altitude: \", vehicle.location.global_relative_frame.alt\r\n        # Break and return from function just below target altitude.\r\n        if vehicle.location.global_relative_frame.alt >= aTargetAltitude * 0.95:\r\n            print \"Reached target altitude\"\r\n            break\r\n        time.sleep(1)\r\n\r\n\r\n# Initialize the takeoff sequence to 15m\r\narm_and_takeoff(15)\r\n\r\nprint(\"Take off complete\")\r\n\r\n# Hover for 10 seconds\r\ntime.sleep(15)\r\n\r\nprint(\"Now let's land\")\r\nvehicle.mode = VehicleMode(\"LAND\")\r\n\r\n# Close vehicle object\r\nvehicle.close()
+===================================================================
+diff --git a/takeoff and landing.py b/takeoff and landing.py
+--- a/takeoff and landing.py	
++++ b/takeoff and landing.py	
+@@ -56,4 +56,4 @@
+ vehicle.mode = VehicleMode("LAND")
+ 
+ # Close vehicle object
+-vehicle.close()
+\ No newline at end of file
++vehicle.close()

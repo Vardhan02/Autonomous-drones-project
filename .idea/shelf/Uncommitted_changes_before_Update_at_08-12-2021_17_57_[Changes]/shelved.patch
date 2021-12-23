@@ -1,0 +1,225 @@
+Index: Object Detection.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from djitellopy import Tello\r\nimport cv2\r\nimport numpy as np\r\n#####Parameters################\r\nfrom haarcascade import cap\r\n\r\nwidth=640 #width of the image\r\nheight=480 #height of the image\r\ndeadzone=100\r\n###############################\r\nstartCounter=0\r\n#connect to tello\r\nme=Tello()\r\nme.connect()\r\nme.for_back_velocity=0\r\nme.up_dow_velocity=0\r\nme.yaw_velocity=0\r\nme.speed=0\r\nprint(me.get_battery())\r\nme.streamoff()\r\nme.streamon()\r\n########################\r\nframeWidth=width\r\nfraneHeight=height\r\ncam=cv2.VideoCapture(1)\r\ncap.set(3,frameWidth)\r\ncap.set(4,franeHeight)\r\ncap.set(10,200)\r\n\r\ndeadZone=100\r\nglobal imgContour\r\nglobal dir;\r\n\r\n\r\ndef empty(a):\r\n    pass\r\n# Trackbars for Hsv space\r\ncv2.namedWindow(\"HSV\")\r\ncv2.resizeWindow(\"HSV\",640,240)\r\ncv2.createTrackbar(\"HUE Min\",\"HSV\",19,179,empty)\r\ncv2.createTrackbar(\"HUE Max\",\"HSV\",35,179,empty)\r\ncv2.createTrackbar(\"SAT Min\",\"HSV\",107,255,empty)\r\ncv2.createTrackbar(\"SAT Max\",\"HSV\",255,255,empty)\r\ncv2.createTrackbar(\"VALUE Min\",\"HSV\",89,255,empty)\r\ncv2.createTrackbar(\"VALUE Max\",\"HSV\",255,255,empty)\r\n\r\n# Trackbar for kenny edge detector\r\ncv2.namedWindow(\"Parameters\")\r\ncv2.resizeWindow(\"Parameters\",640,240)\r\ncv2.createTrackbar(\"Threshold1\",\"Parameters\",166,255,empty)\r\ncv2.createTrackbar(\"Threshold2\",\"Parameters\",171,255,empty)\r\ncv2.createTrackbar(\"Area\",\"Parameters\",3750,30000,empty)\r\n\r\ndef stackImages(scale,imgArray):\r\n    rows=len(imgArray)\r\n    cols=len(imgArray[0])\r\n    rowAvailable=isinstance(imgArray[0],list)\r\n    width=imgArray[0][0].shape[1]\r\n    height=imgArray[0][0].shape[0]\r\n    if rowAvailable:\r\n        for x in range(0,rows):\r\n            for y in range(0,cols):\r\n                if imgArray[x][y].shape[:2]==imgArray[0][0].shape[:2]:\r\n                    imgArray[x][y]=cv2.resize(imgArray[x][y],(0,0),None,scale,scale)\r\n                else:\r\n                    imgArray[x][y] = cv2.resize(imgArray[x][y],(imgArray[0][0].shape[1],imgArray[0][0].shape[0]), None, scale, scale)\r\n                if len(imgArray[x][y].shape)==2:\r\n                    imgArray[x][y]=cv2.cvtColor(imgArray[x][y],cv2.COLOR_GRAY2BGR)\r\n                    imageBlank=np.zeroes((height,width,3),np.uints)\r\n                    hor=[imageBlank]*rows\r\n                    hor_con=[imageBlank]*rows\r\n                    for x in range(0,rows):\r\n                        hor[x]=np.hstack(imgArray[x])\r\n                    ver=np.vstack(hor)\r\n                else:\r\n                    for x in range(0,rows):\r\n                        if imgArray[x][y].shape[:2] == imgArray[0][0].shape[:2]:\r\n                            imgArray[x][y] = cv2.resize(imgArray[x][y], (0, 0), None, scale, scale)\r\n                        else:\r\n                            imgArray[x][y] = cv2.resize(imgArray[x][y],\r\n                                                        (imgArray[0][0].shape[1], imgArray[0][0].shape[0]), None, scale,scale)\r\n                        if len(imgArray[x][y].shape) == 2:\r\n                            imgArray[x][y] = cv2.cvtColor(imgArray[x][y], cv2.COLOR_GRAY2BGR)\r\n                hor=np.hstack(imgArray)\r\n                ver=hor\r\n    return ver\r\ndef getContours(img,imgContour):\r\n    contours,heirachy=cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)\r\n    for cnt in contours:\r\n        area=cv2.counterArea(cnt)\r\n        areaMin=cv2.getTrackbarPos(\"Area\",\"Parameters\")\r\n        if area>areaMin:\r\n            cv2.drawContours(imgContour,cnt,-1,(255,0,255),7)\r\n            peri=cv2.arcLength(cnt,True)\r\n            approx=cv2.approxPolyDP(cnt,0.02*peri,True)\r\n            print(len(approx))\r\n            x,y,w,h=cv2.boundingRect(approx)\r\n            cv2.rectangle(imgContour,(x,y),(x+w,y+h),(0,255,0),5)\r\n            cv2.puttext(imgContour,\"Points: \",+str(len(approx)),(x+w+20,y+20),cv2.FONT_HERSHEY_COMPLEX,0.7,(0,255,0),2)\r\n            cv2.puttext(imgContour, \"Area: \", +str(len(area)), (x + w + 20, y + 45), cv2.FONT_HERSHEY_COMPLEX, 0.7,\r\n                        (0, 255, 0), 2)\r\n            cv2.puttext(imgContour, \" \", +str(int(x))+\"\",+str(int(y)),(x-20,y-45),cv2.FONT_HERSHEY_COMPLEX, 0.7,\r\n                        (0, 255, 0), 2)\r\n            cx=int(x+(w/2))\r\n            cy=int(y+(h/2))\r\n\r\n            if(cx<int(frameWidth/2)-deadZone):\r\n                cv2.putText(imgContour,\"Go Left\",(20,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),3)\r\n                cv2.rectangle(imgContour,(0,int(franeHeight/2-deadZone)),(int(frameWidth/2-deadZone)),(int(franeHeight/2)+deadZone),(0,0,255),cv2.FILLED)\r\n                dir=1\r\n            elif(cx>int(frameWidth/2)+deadZone):\r\n                cv2.putText(imgContour, \"Go Left\", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)\r\n                cv2.rectangle(imgContour, (0, int(frameWidth/2-deadZone),0),int(franeHeight/2-deadZone)),(frameWidth,int(franeHeight/2+deadZone),(0,0,255),cv2.FILLED)\r\n                dir=2\r\n            elif(cy<int(franeHeight/2)-deadZone):\r\n                cv2.putText(imgContour, \"Go Left\", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)\r\n                cv2.rectangle(imgContour, (0, int(franeHeight / 2 - deadZone)), (int(frameWidth / 2 - deadZone)),(int(franeHeight / 2) + deadZone), (0, 0, 255), cv2.FILLED)\r\n                dir=3\r\n            elif(cy<int(franeHeight/2)+deadZone):\r\n                cv2.putText(imgContour, \"Go Left\", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)\r\n                cv2.rectangle(imgContour, (0, int(frameWidth/2-deadZone),0),int(franeHeight/2-deadZone)),(frameWidth,int(franeHeight/2+deadZone),(0,0,255),cv2.FILLED)\r\n                dir=4\r\n            else:\r\n                dir=0\r\n            cv2.line(imgContour,(int(frameWidth/2),int(franeHeight/2)),(cx,cy),(0,0,255),3)\r\n\r\n\r\ndef display(img):\r\n    cv2.line(img, (int(frameWidth / 2) - deadZone, 0), (int(frameWidth / 2) - deadZone, franeHeight), (255, 255, 0), 3)\r\n    cv2.line(img, (int(frameWidth / 2) - deadZone, 0), (int(frameWidth / 2) + deadZone, franeHeight), (255, 255, 0), 3)\r\n    cv2.circle(img, (int(frameWidth / 2), int(franeHeight / 2)), 5, (0, 0, 255), 5)\r\n    cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) - deadZone), (255, 255, 0), 3)\r\n    cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) + deadZone), (255, 255, 0), 3)\r\nwhile True:\r\n    img=cap.read()\r\n    imgContour=img.copy()\r\n    imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGRHSV)\r\n    h_min=cv2.getTrackbarPos(\"HUE Min\",\"HSV\")\r\n    h_max = cv2.getTrackbarPos(\"HUE Max\", \"HSV\")\r\n    s_min = cv2.getTrackbarPos(\"SAT Min\", \"HSV\")\r\n    s_max = cv2.getTrackbarPos(\"SAT Max\", \"HSV\")\r\n    v_min=cv2.getTrackbarPos(\"VALUE Min\",\"HSV\")\r\n    v_max = cv2.getTrackbarPos(\"VALUE Max\", \"HSV\")\r\n    print (h_min)\r\n\r\n    lower=np.array([h_min,s_min,v_min])\r\n    upper=np.array([h_max,s_max,v_max])\r\n    mask=cv2.inRange(imgHsv,lower,upper)\r\n    result=cv2.bitwise_and(img,img,mask=mask)\r\n    mask=cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)\r\n\r\n    imgblur=cv2.GaussianBlur(result,(7,7),1)\r\n    imgGray=cv2.cvtColor(imgblur,cv2.COLOR_GRAY2BGR)\r\n    threshold1=cv2.getTrackbarPos(\"Threshold1\",\"Parameters\")\r\n    threshold2 = cv2.getTrackbarPos(\"Threshold2\", \"Parameters\")\r\n    imgCanny=cv2.Canny(imgGray,threshold1,threshold2)\r\n    kernel=np.ones((5,5))\r\n    imgDil=cv2.dilate(imgCanny,kernel,iterations=1)\r\n    getContours(imgDil,imgContour)\r\n    display(imgContour)\r\n\r\n    ####### Flight\r\n    if startCounter==0:\r\n        me.takeoff()\r\n        startCounter=1\r\n    if dir==1:\r\n        me.yaw_velocity=-60\r\n    elif dir==2:\r\n        me.yaw_velocity=60\r\n    elif dir==3:\r\n        me.up_dow_velocity=60\r\n    elif dir==4:\r\n        me.up_dow_velocity=-60\r\n    else:\r\n        me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0;me.yaw_velocity=0\r\n    #send velocity values to tello\r\n    if me.send_rc_control:\r\n        me.send_rc_control(me.left_right_velocity,me.for_back_velocity,me.yaw_velocity,me.up_dow_velocity)\r\n    print(dir)\r\n    stack=stackImages(0.7,([img,result],[imgDil,imgContour]))\r\n\r\n    cv2.imshow(\"Horizontal Stacking\", stack)\r\n    if cv2.waitkey(1)&0xFF == ord('q'):\r\n        break\r\ncam.release()\r\ncv2.destroyAllWindows()\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Object Detection.py b/Object Detection.py
+--- a/Object Detection.py	(revision f4eae9d0cefc7521e1c72835286d90f2f3ab1376)
++++ b/Object Detection.py	(date 1638966444535)
+@@ -1,197 +1,0 @@
+-from djitellopy import Tello
+-import cv2
+-import numpy as np
+-#####Parameters################
+-from haarcascade import cap
+-
+-width=640 #width of the image
+-height=480 #height of the image
+-deadzone=100
+-###############################
+-startCounter=0
+-#connect to tello
+-me=Tello()
+-me.connect()
+-me.for_back_velocity=0
+-me.up_dow_velocity=0
+-me.yaw_velocity=0
+-me.speed=0
+-print(me.get_battery())
+-me.streamoff()
+-me.streamon()
+-########################
+-frameWidth=width
+-franeHeight=height
+-cam=cv2.VideoCapture(1)
+-cap.set(3,frameWidth)
+-cap.set(4,franeHeight)
+-cap.set(10,200)
+-
+-deadZone=100
+-global imgContour
+-global dir;
+-
+-
+-def empty(a):
+-    pass
+-# Trackbars for Hsv space
+-cv2.namedWindow("HSV")
+-cv2.resizeWindow("HSV",640,240)
+-cv2.createTrackbar("HUE Min","HSV",19,179,empty)
+-cv2.createTrackbar("HUE Max","HSV",35,179,empty)
+-cv2.createTrackbar("SAT Min","HSV",107,255,empty)
+-cv2.createTrackbar("SAT Max","HSV",255,255,empty)
+-cv2.createTrackbar("VALUE Min","HSV",89,255,empty)
+-cv2.createTrackbar("VALUE Max","HSV",255,255,empty)
+-
+-# Trackbar for kenny edge detector
+-cv2.namedWindow("Parameters")
+-cv2.resizeWindow("Parameters",640,240)
+-cv2.createTrackbar("Threshold1","Parameters",166,255,empty)
+-cv2.createTrackbar("Threshold2","Parameters",171,255,empty)
+-cv2.createTrackbar("Area","Parameters",3750,30000,empty)
+-
+-def stackImages(scale,imgArray):
+-    rows=len(imgArray)
+-    cols=len(imgArray[0])
+-    rowAvailable=isinstance(imgArray[0],list)
+-    width=imgArray[0][0].shape[1]
+-    height=imgArray[0][0].shape[0]
+-    if rowAvailable:
+-        for x in range(0,rows):
+-            for y in range(0,cols):
+-                if imgArray[x][y].shape[:2]==imgArray[0][0].shape[:2]:
+-                    imgArray[x][y]=cv2.resize(imgArray[x][y],(0,0),None,scale,scale)
+-                else:
+-                    imgArray[x][y] = cv2.resize(imgArray[x][y],(imgArray[0][0].shape[1],imgArray[0][0].shape[0]), None, scale, scale)
+-                if len(imgArray[x][y].shape)==2:
+-                    imgArray[x][y]=cv2.cvtColor(imgArray[x][y],cv2.COLOR_GRAY2BGR)
+-                    imageBlank=np.zeroes((height,width,3),np.uints)
+-                    hor=[imageBlank]*rows
+-                    hor_con=[imageBlank]*rows
+-                    for x in range(0,rows):
+-                        hor[x]=np.hstack(imgArray[x])
+-                    ver=np.vstack(hor)
+-                else:
+-                    for x in range(0,rows):
+-                        if imgArray[x][y].shape[:2] == imgArray[0][0].shape[:2]:
+-                            imgArray[x][y] = cv2.resize(imgArray[x][y], (0, 0), None, scale, scale)
+-                        else:
+-                            imgArray[x][y] = cv2.resize(imgArray[x][y],
+-                                                        (imgArray[0][0].shape[1], imgArray[0][0].shape[0]), None, scale,scale)
+-                        if len(imgArray[x][y].shape) == 2:
+-                            imgArray[x][y] = cv2.cvtColor(imgArray[x][y], cv2.COLOR_GRAY2BGR)
+-                hor=np.hstack(imgArray)
+-                ver=hor
+-    return ver
+-def getContours(img,imgContour):
+-    contours,heirachy=cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+-    for cnt in contours:
+-        area=cv2.counterArea(cnt)
+-        areaMin=cv2.getTrackbarPos("Area","Parameters")
+-        if area>areaMin:
+-            cv2.drawContours(imgContour,cnt,-1,(255,0,255),7)
+-            peri=cv2.arcLength(cnt,True)
+-            approx=cv2.approxPolyDP(cnt,0.02*peri,True)
+-            print(len(approx))
+-            x,y,w,h=cv2.boundingRect(approx)
+-            cv2.rectangle(imgContour,(x,y),(x+w,y+h),(0,255,0),5)
+-            cv2.puttext(imgContour,"Points: ",+str(len(approx)),(x+w+20,y+20),cv2.FONT_HERSHEY_COMPLEX,0.7,(0,255,0),2)
+-            cv2.puttext(imgContour, "Area: ", +str(len(area)), (x + w + 20, y + 45), cv2.FONT_HERSHEY_COMPLEX, 0.7,
+-                        (0, 255, 0), 2)
+-            cv2.puttext(imgContour, " ", +str(int(x))+"",+str(int(y)),(x-20,y-45),cv2.FONT_HERSHEY_COMPLEX, 0.7,
+-                        (0, 255, 0), 2)
+-            cx=int(x+(w/2))
+-            cy=int(y+(h/2))
+-
+-            if(cx<int(frameWidth/2)-deadZone):
+-                cv2.putText(imgContour,"Go Left",(20,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),3)
+-                cv2.rectangle(imgContour,(0,int(franeHeight/2-deadZone)),(int(frameWidth/2-deadZone)),(int(franeHeight/2)+deadZone),(0,0,255),cv2.FILLED)
+-                dir=1
+-            elif(cx>int(frameWidth/2)+deadZone):
+-                cv2.putText(imgContour, "Go Left", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)
+-                cv2.rectangle(imgContour, (0, int(frameWidth/2-deadZone),0),int(franeHeight/2-deadZone)),(frameWidth,int(franeHeight/2+deadZone),(0,0,255),cv2.FILLED)
+-                dir=2
+-            elif(cy<int(franeHeight/2)-deadZone):
+-                cv2.putText(imgContour, "Go Left", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)
+-                cv2.rectangle(imgContour, (0, int(franeHeight / 2 - deadZone)), (int(frameWidth / 2 - deadZone)),(int(franeHeight / 2) + deadZone), (0, 0, 255), cv2.FILLED)
+-                dir=3
+-            elif(cy<int(franeHeight/2)+deadZone):
+-                cv2.putText(imgContour, "Go Left", (20, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)
+-                cv2.rectangle(imgContour, (0, int(frameWidth/2-deadZone),0),int(franeHeight/2-deadZone)),(frameWidth,int(franeHeight/2+deadZone),(0,0,255),cv2.FILLED)
+-                dir=4
+-            else:
+-                dir=0
+-            cv2.line(imgContour,(int(frameWidth/2),int(franeHeight/2)),(cx,cy),(0,0,255),3)
+-
+-
+-def display(img):
+-    cv2.line(img, (int(frameWidth / 2) - deadZone, 0), (int(frameWidth / 2) - deadZone, franeHeight), (255, 255, 0), 3)
+-    cv2.line(img, (int(frameWidth / 2) - deadZone, 0), (int(frameWidth / 2) + deadZone, franeHeight), (255, 255, 0), 3)
+-    cv2.circle(img, (int(frameWidth / 2), int(franeHeight / 2)), 5, (0, 0, 255), 5)
+-    cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) - deadZone), (255, 255, 0), 3)
+-    cv2.line(img, (0, int(franeHeight / 2) - deadZone), (frameWidth, int(franeHeight / 2) + deadZone), (255, 255, 0), 3)
+-while True:
+-    img=cap.read()
+-    imgContour=img.copy()
+-    imgHsv=cv2.cvtColor(img,cv2.COLOR_GRAY2BGRHSV)
+-    h_min=cv2.getTrackbarPos("HUE Min","HSV")
+-    h_max = cv2.getTrackbarPos("HUE Max", "HSV")
+-    s_min = cv2.getTrackbarPos("SAT Min", "HSV")
+-    s_max = cv2.getTrackbarPos("SAT Max", "HSV")
+-    v_min=cv2.getTrackbarPos("VALUE Min","HSV")
+-    v_max = cv2.getTrackbarPos("VALUE Max", "HSV")
+-    print (h_min)
+-
+-    lower=np.array([h_min,s_min,v_min])
+-    upper=np.array([h_max,s_max,v_max])
+-    mask=cv2.inRange(imgHsv,lower,upper)
+-    result=cv2.bitwise_and(img,img,mask=mask)
+-    mask=cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
+-
+-    imgblur=cv2.GaussianBlur(result,(7,7),1)
+-    imgGray=cv2.cvtColor(imgblur,cv2.COLOR_GRAY2BGR)
+-    threshold1=cv2.getTrackbarPos("Threshold1","Parameters")
+-    threshold2 = cv2.getTrackbarPos("Threshold2", "Parameters")
+-    imgCanny=cv2.Canny(imgGray,threshold1,threshold2)
+-    kernel=np.ones((5,5))
+-    imgDil=cv2.dilate(imgCanny,kernel,iterations=1)
+-    getContours(imgDil,imgContour)
+-    display(imgContour)
+-
+-    ####### Flight
+-    if startCounter==0:
+-        me.takeoff()
+-        startCounter=1
+-    if dir==1:
+-        me.yaw_velocity=-60
+-    elif dir==2:
+-        me.yaw_velocity=60
+-    elif dir==3:
+-        me.up_dow_velocity=60
+-    elif dir==4:
+-        me.up_dow_velocity=-60
+-    else:
+-        me.left_right_velocity=0;me.for_back_velocity=0;me.up_dow_velocity=0;me.yaw_velocity=0
+-    #send velocity values to tello
+-    if me.send_rc_control:
+-        me.send_rc_control(me.left_right_velocity,me.for_back_velocity,me.yaw_velocity,me.up_dow_velocity)
+-    print(dir)
+-    stack=stackImages(0.7,([img,result],[imgDil,imgContour]))
+-
+-    cv2.imshow("Horizontal Stacking", stack)
+-    if cv2.waitkey(1)&0xFF == ord('q'):
+-        break
+-cam.release()
+-cv2.destroyAllWindows()
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	(date 1638966276419)
++++ b/.idea/vcs.xml	(date 1638966276419)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
