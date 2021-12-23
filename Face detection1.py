@@ -3,8 +3,7 @@
 import cv2
 import mediapipe as mp
 import time
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+
 global img_counter,k
 
 # Creating a class for face detection
